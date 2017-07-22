@@ -1,0 +1,59 @@
+# Read two zero-terminated strings
+# Output the one that comes first alphabetically
+# Starts with 25 registers, [23] = 0, [24] = 10
+
+COPYFROM 23
+COPYTO   21
+COPYFROM 24
+COPYTO   22
+
+loadFirst:
+INBOX
+COPYTO   [21]
+JUMPZ    loadSecond
+BUMPUP   21
+JUMP     loadFirst
+
+loadSecond:
+INBOX
+COPYTO   [22]
+JUMPZ    setupCompare
+BUMPUP   22
+JUMP     loadSecond
+
+setupCompare:
+COPYFROM 23
+COPYTO   21
+COPYFROM 24
+COPYTO   22
+
+compareLetter:
+COPYFROM [21]
+JUMPZ    outputFirst # checking here saves me one COPYFROM
+SUB      [22]
+JUMPZ    nextLetter
+JUMPN    outputFirst
+JUMP     outputSecond
+
+nextLetter:
+BUMPUP   21
+BUMPUP   22
+COPYFROM [22]
+JUMPZ    outputSecond
+JUMP     compareLetter
+
+outputFirst:
+COPYFROM [23]
+JUMPZ    endProgram
+OUTBOX
+BUMPUP   23
+JUMP     outputFirst
+
+outputSecond:
+COPYFROM [24]
+JUMPZ    endProgram
+OUTBOX
+BUMPUP   24
+JUMP     outputSecond
+
+endProgram:
