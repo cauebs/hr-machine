@@ -1,15 +1,32 @@
-from hrmachine import Machine, Number
-from hrmachine.utils import string_to_letters
+from typing import List
+from hrmachine import Machine, Value, Letter
+from hrmachine.utils import string_to_values
 
 
-registers = [None] * 25
-registers[23] = Number(0)
-registers[24] = Number(10)
+def test_string_to_values():
+    expected = [Letter.P, Letter.Y, Letter.T, Letter.H, Letter.O, Letter.N]
+    assert string_to_values('python') == expected
 
-word_a = string_to_letters('cauebs')
-word_b = string_to_letters('python')
-inbox = word_a + [0] + word_b + [0]
-print(inbox)
+    expected = [Letter.L, Letter.I, Letter.N, Letter.U, Letter.X, 0]
+    assert string_to_values('linux', zero_terminated=True) == expected
 
-outbox = Machine(registers).run_file('examples/alphabetizer.hr', inbox)
-print(outbox)
+    expected = [8, 0, Letter.B, Letter.I, Letter.T, 0]
+    assert string_to_values('8 bit', zero_terminated=True) == expected
+
+
+def test_alphabetizer():
+    registers: List[Value] = [None] * 25
+    registers[23] = 0
+    registers[24] = 10
+
+    inbox = string_to_values('cauebs python', zero_terminated=True)
+    # print(f'Input = {inbox}')
+
+    machine = Machine(registers)
+    outbox = machine.run_file('examples/alphabetizer.hr', inbox)
+    # print(f'Output = {outbox}')
+    assert outbox == string_to_values('cauebs')
+
+
+if __name__ == '__main__':
+    test_alphabetizer()

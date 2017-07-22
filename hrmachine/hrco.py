@@ -5,16 +5,16 @@ import subprocess
 from sys import argv
 
 
+COMMENT_REGEX = re.compile(r'#.*$', re.MULTILINE)
+BLANK_LINE_REGEX = re.compile(r'^\s*', re.MULTILINE)
+LABEL_REGEX = re.compile(r'.+:\s*', re.MULTILINE)
+
 with open(argv[1]) as f:
     code = f.read()
 
-comment_regex = re.compile(r'#.*$', re.MULTILINE)
-blank_line_regex = re.compile(r'^\s*', re.MULTILINE)
-label_regex = re.compile(r'.+:\s*', re.MULTILINE)
-
-code = comment_regex.sub('', code)
-code = blank_line_regex.sub('', code)
-instructions = label_regex.sub('', code)
+code = COMMENT_REGEX.sub('', code)
+code = BLANK_LINE_REGEX.sub('', code)
+instructions = LABEL_REGEX.sub('', code)
 
 subprocess.run(['xclip', '-selection', 'clipboard'],
                input=code, encoding='utf-8')

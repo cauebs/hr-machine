@@ -1,15 +1,19 @@
 from typing import List
-from hrmachine import Letter, Number
+from hrmachine import Letter, Value
 
 
-def string_to_letters(string: str, zero_terminated=True) -> List[Letter]:
+def string_to_values(string: str, zero_terminated=False) -> List[Value]:
     output = []
-    for character in string:
-        if character.isalpha():
-            output.append(Letter.__getattr__(character.upper()))
-        elif character.isdigit():
-            output.append(Number(character))
-        else:
-            raise ValueError('String contains unsupported characters')
+    for word in string.split():
+        for char in word:
+            if char.isalpha():
+                output.append(Letter.from_string(char))
+            elif char.isdigit():
+                output.append(int(char))
+            else:
+                raise ValueError(f'Unsupported character {repr(char)}')
+
+        if zero_terminated:
+            output.append(0)
 
     return output
