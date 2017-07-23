@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NamedTuple, List, Dict, Union
+from typing import NamedTuple, Iterable, List, Dict, Union
 import re
 
 
@@ -53,35 +53,36 @@ Value = Union[int, Letter]
 
 
 class Machine:
-    _head: Value
-    _registers: List[Value]
-    _input: List[Value]
-    _output: List[Value]
-    _labels: Dict[str, int]
+    head: Value
+    registers: List[Value]
+    inbox: List[Value]
+    output: List[Value]
 
-    def __init__(self, registers: List[Value]) -> None:
-        self._head = None
-        self._registers = registers.copy()
+    def __init__(self, registers: Iterable[Value]) -> None:
+        self.head = None
+        self.registers = list(registers)
 
-    def run(self, code: str, input_values: List[Value],
-            registers: List[Value] = None) -> List[Value]:
-        self._input = input_values
-        self._output = []
+    def run(self, code: str, inbox: Iterable[Value],
+            registers: Iterable[Value] = None) -> List[Value]:
+        self.inbox = list(inbox)
+        self.output = []
 
         if registers:
-            self._registers = registers.copy()
+            self.registers = list(registers)
 
-        self._labels = {}
-        return self._eval(self._parse(code))
+        instructions, labels = self._parse(code)
+        return self._eval(instructions, labels)
 
-    def run_file(self, file: str, input_values: List[Value],
-                 registers: List[Value] = None) -> List[Value]:
+    def run_file(self, file: str, inbox: Iterable[Value],
+                 registers: Iterable[Value] = None) -> List[Value]:
         with open(file) as f:
             code = f.read()
-        return self.run(code, input_values, registers)
+        return self.run(code, inbox, registers)
 
     def _parse(self, code: str) -> List[Instruction]:
         instructions: List[Instruction] = []
+        labels: Dict[str, int] = {}
+
         for i, line in enumerate(code.splitlines()):
             line = COMMENT_REGEX.sub('', line)
             if line.isspace() or not line:
@@ -90,7 +91,7 @@ class Machine:
             label_match = LABEL_REGEX.match(line)
             if label_match:
                 label = label_match.group(1)
-                self._labels[label] = len(instructions) - 1
+                labels[label] = len(instructions) - 1
                 continue
 
             opname, *args = line.split()
@@ -98,71 +99,72 @@ class Machine:
             arg = None if not args else args[0]
             instructions.append(Instruction(op, arg, i))
 
-        return instructions
+        return instructions, labels
 
     def _parse_pointer(self, arg: str) -> Value:
         pointer_match = POINTER_REGEX.match(arg)
         if pointer_match:
             index = pointer_match.group(1)
-            return self._registers[int(index)]
+            return self.registers[int(index)]
         return arg
 
-    def _eval(self, instructions: List[Instruction]) -> List[Value]:
+    def _eval(self, instructions: List[Instruction],
+              labels: Dict[str, int]) -> List[Value]:
         current_line = 0
         while current_line < len(instructions):
             instruction = instructions[current_line]
-            op, arg, line = instruction
             # print(instruction)
+            op, arg, line = instruction
 
             if op == Operation.INBOX:
-                if not self._input:
+                if not self.inbox:
                     current_line = len(instructions)
                     break
-                self._head = self._input.pop(0)
+                self.head = self.inbox.pop(0)
 
             elif op == Operation.OUTBOX:
-                self._output.append(self._head)
+                self.output.append(self.head)
 
             elif op == Operation.COPYFROM:
                 arg = self._parse_pointer(arg)
-                self._head = self._registers[int(arg)]
+                self.head = self.registers[int(arg)]
 
             elif op == Operation.COPYTO:
                 arg = self._parse_pointer(arg)
-                self._registers[int(arg)] = self._head
+                self.registers[int(arg)] = self.head
 
             elif op == Operation.ADD:
                 arg = self._parse_pointer(arg)
-                self._head += self._registers[int(arg)]
+                self.head += self.registers[int(arg)]
 
             elif op == Operation.SUB:
                 arg = self._parse_pointer(arg)
-                self._head -= self._registers[int(arg)]
+                self.head -= self.registers[int(arg)]
 
             elif op == Operation.BUMPUP:
                 arg = self._parse_pointer(arg)
-                self._registers[int(arg)] += 1
-                self._head = self._registers[int(arg)]
+                self.registers[int(arg)] += 1
+                self.head = self.registers[int(arg)]
 
             elif op == Operation.BUMPDN:
                 arg = self._parse_pointer(arg)
-                self._registers[int(arg)] -= 1
-                self._head = self._registers[int(arg)]
+                self.registers[int(arg)] -= 1
+                self.head = self.registers[int(arg)]
 
             elif op == Operation.JUMP:
-                current_line = self._labels[arg]
+                current_line = labels[arg]
 
             elif op == Operation.JUMPZ:
-                if self._head == 0:
-                    current_line = self._labels[arg]
+                if self.head == 0:
+                    current_line = labels[arg]
 
             elif op == Operation.JUMPN:
-                if self._head < 0:
-                    current_line = self._labels[arg]
+                if self.head < 0:
+                    current_line = labels[arg]
 
             else:
                 raise SyntaxError(f'Invalid operation {repr(op)}')
 
             current_line += 1
 
-        return self._output
+        return self.output
