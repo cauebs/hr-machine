@@ -35,8 +35,6 @@ You can then edit the code in your favourite text editor and run it with the int
 
 The simple example above repeatedly takes two items from input and outputs their sum. For a more complex example, see the alphabetizer example at `examples/alphabetizer.hr` (or play the game :D)
 
-The interpreter accepts Python-style comments, starting with a `#`. However, if you want to paste it back it into the game, you'll have to remove it. The `hrco.py` script included will copy a script from a file to the clipboard, removing comments so you can just go to the game and hit Paste.
-
 ---
 
 ## To do

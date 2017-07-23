@@ -3,7 +3,7 @@ from typing import NamedTuple, Iterable, List, Dict, Union
 import re
 
 
-COMMENT_REGEX = re.compile(r'#.*$')
+COMMENT_REGEX = re.compile(r'--.*$')
 LABEL_REGEX = re.compile(r'^\s*([a-z]+[a-zA-Z\d]*):\s*$')
 POINTER_REGEX = re.compile(r'^\[(\d+)\]$')
 

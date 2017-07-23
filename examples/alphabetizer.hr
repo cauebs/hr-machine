@@ -1,6 +1,6 @@
-# Read two zero-terminated strings
-# Output the one that comes first alphabetically
-# Starts with 25 registers, [23] = 0, [24] = 10
+-- Read two zero-terminated strings
+-- Output the one that comes first alphabetically
+-- Starts with 25 registers, [23] = 0, [24] = 10
 
 COPYFROM 23
 COPYTO   21
@@ -29,7 +29,7 @@ COPYTO   22
 
 compareLetter:
 COPYFROM [21]
-JUMPZ    outputFirst # checking here saves me one COPYFROM
+JUMPZ    outputFirst -- checking here saves me one COPYFROM
 SUB      [22]
 JUMPZ    nextLetter
 JUMPN    outputFirst
