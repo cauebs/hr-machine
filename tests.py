@@ -1,5 +1,4 @@
-from typing import List
-from hrmachine import Machine, Value, Letter
+from hrmachine import Machine, Letter
 from hrmachine.utils import string_to_values
 
 
@@ -15,17 +14,25 @@ def test_string_to_values():
 
 
 def test_alphabetizer():
-    registers: List[Value] = [None] * 25
+    registers = [None] * 25
     registers[23] = 0
     registers[24] = 10
 
-    inbox = string_to_values('cauebs python', zero_terminated=True)
-    # print(f'Input = {inbox}')
-
     machine = Machine(registers)
+
+    inbox = string_to_values('cauebs python', zero_terminated=True)
     outbox = machine.run_file('examples/alphabetizer.hr', inbox)
-    # print(f'Output = {outbox}')
     assert outbox == string_to_values('cauebs')
+
+    inbox = string_to_values('human resource', zero_terminated=True)
+    outbox = machine.run_file('examples/alphabetizer.hr',
+                              inbox, registers=registers)
+    assert outbox == string_to_values('human')
+
+    inbox = string_to_values('mypy pytest', zero_terminated=True)
+    outbox = machine.run_file('examples/alphabetizer.hr',
+                              inbox, registers=registers)
+    assert outbox == string_to_values('mypy')
 
 
 if __name__ == '__main__':

@@ -53,20 +53,32 @@ Value = Union[int, Letter]
 
 
 class Machine:
-    def __init__(self, registers: List[Value]) -> None:
-        self._head: Value = None
-        self._labels: Dict[str, int] = {}
-        self._registers = registers  # maybe copying would be good
+    _head: Value
+    _registers: List[Value]
+    _input: List[Value]
+    _output: List[Value]
+    _labels: Dict[str, int]
 
-    def run(self, code: str, input_values: List[Value]) -> List[Value]:
+    def __init__(self, registers: List[Value]) -> None:
+        self._head = None
+        self._registers = registers.copy()
+
+    def run(self, code: str, input_values: List[Value],
+            registers: List[Value] = None) -> List[Value]:
         self._input = input_values
-        self._output: List[Value] = []
+        self._output = []
+
+        if registers:
+            self._registers = registers.copy()
+
+        self._labels = {}
         return self._eval(self._parse(code))
 
-    def run_file(self, file: str, input_values: List[Value]) -> List[Value]:
+    def run_file(self, file: str, input_values: List[Value],
+                 registers: List[Value] = None) -> List[Value]:
         with open(file) as f:
             code = f.read()
-        return self.run(code, input_values)
+        return self.run(code, input_values, registers)
 
     def _parse(self, code: str) -> List[Instruction]:
         instructions: List[Instruction] = []
