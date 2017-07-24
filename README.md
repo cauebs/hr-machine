@@ -33,7 +33,7 @@ You can then edit the code in your favourite text editor and run it with the int
 [4, 5, 14, 8]
 ```
 
-The simple example above repeatedly takes two items from input and outputs their sum. For a more complex example, see the alphabetizer example at `examples/alphabetizer.hr` (or play the game :D)
+The simple example above repeatedly takes two items from input and outputs their sum. For complex examples, take a look at [these](examples/) (or play the game :D). These examples are also used for [testing](tests.py).
 
 ---
 
