@@ -1,0 +1,20 @@
+-- Read letters from input, output everything but vowels.
+-- 10 registers, [0] = A, [1] = E, [2] = I, [3] = O, [4] = U, [5] = 0
+
+start:
+    COPYFROM 5      -- zero
+    COPYTO   6      -- vowel index
+    INBOX
+    COPYTO   7      -- current letter
+check:
+    COPYFROM [6]    -- current vowel
+    JUMPZ    output -- if vowel is zero, it means that the index got to 5
+                    -- and therefore the letter didnt match any vowel
+    SUB      7      -- otherwise, subtract the letter in question
+    JUMPZ    start  -- if zero, the letter is a vowel and should be discarded
+    BUMPUP   6
+    JUMP     check
+output:
+    COPYFROM 7
+    OUTBOX
+    JUMP     start

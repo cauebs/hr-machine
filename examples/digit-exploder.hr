@@ -1,0 +1,54 @@
+-- Read numbers from input and output their digits
+-- Starts with 12 registers, [9] = 0, [10] = 10, [11] = 100
+
+-- This solution is not optimal
+
+setupHundreds:
+    INBOX
+    COPYTO 5
+    COPYFROM 9
+    COPYTO 8
+
+testHundreds:
+    COPYFROM 5
+    SUB 11
+    JUMPN outputHundreds
+    COPYTO 5
+    BUMPUP 8
+    JUMP testHundreds
+
+outputHundreds:
+    COPYFROM 8
+    JUMPZ setupTens
+    OUTBOX
+
+setupTens:
+    COPYFROM 9
+    COPYTO 7
+
+testTens:
+    COPYFROM 5
+    SUB 10
+    JUMPN checkTens
+    COPYTO 5
+    BUMPUP 7
+    JUMP testTens
+
+checkTens:
+    COPYFROM 7
+    JUMPZ singleUnitCheck
+    JUMP outputTens
+
+singleUnitCheck:
+    COPYFROM 8
+    JUMPZ outputUnits
+    COPYFROM 7
+    JUMP outputTens
+
+outputTens:
+    OUTBOX
+
+outputUnits:
+    COPYFROM 5
+    OUTBOX
+    JUMP setupHundreds

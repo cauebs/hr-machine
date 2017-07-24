@@ -1,0 +1,16 @@
+-- For each zero-terminated string in the input, reverse it and output it
+-- 15 registers, [14] = 0
+
+    BUMPDN   14
+input:
+    BUMPUP   14
+    INBOX
+    JUMPZ    output
+    COPYTO   [14]
+    JUMP     input
+output:
+    BUMPDN   14
+    JUMPN    input
+    COPYFROM [14]
+    OUTBOX
+    JUMP     output
